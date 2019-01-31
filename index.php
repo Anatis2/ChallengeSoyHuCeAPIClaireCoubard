@@ -1,9 +1,9 @@
 <?php
 
     include('modele/fonctions.php');
-    include('vue/view_header.php');
-    include('vue/view_accueil.php');
-    include('vue/view_footer.php');
+    include('view_header.php');
+    include('view_accueil.php');
+    include('view_footer.php');
 
 ?>
         
