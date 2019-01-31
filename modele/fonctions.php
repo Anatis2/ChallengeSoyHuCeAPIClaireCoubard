@@ -38,7 +38,8 @@
         $idIcone = $weather[0]['icon'];
         $urlIcone = "http://openweathermap.org/img/w/" . $idIcone . ".png";
 
-        echo "<h2>Résultats de la dernière requête :</h2>";
+        echo "<section>";
+        echo "<h3>Résultats de la dernière requête</h3>";
         echo "<table>
                 <tr>
                     <th>Ville</th>
@@ -63,6 +64,7 @@
                     <td>" . $clouds['all'] . "%</td>
                 </tr>
             </table>";
+        echo "</section>";
 
     }
     
@@ -97,8 +99,9 @@
         $reqSelectDonneesMeteo = $connexion->query($selectDonneesMeteo);        
         $resSelectDonneesMeteo = $reqSelectDonneesMeteo->fetchAll();
         
-        echo "<br/>";
-        echo "<table>
+        echo "<section>";
+        echo "<h3>Résultats des 10 dernières requêtes</h3>";
+        echo "<table id='tabBDD'>
                 <tr>
                     <th>Ville</th>
                     <th>Date (heure de Paris)</th>
@@ -108,7 +111,7 @@
                     <th>Vent (vitesse)</th>
                     <th>Couverture nuageuse</th>
                 </tr>";
-        
+                
         foreach ($resSelectDonneesMeteo as $value1) {
             extract ($resSelectDonneesMeteo);
             
@@ -127,6 +130,7 @@
         }
 
         echo "</table>";
+        echo "</section>";
     }
 
 ?>

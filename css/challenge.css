@@ -1,5 +1,28 @@
+* {
+    font-family: arial;
+}
+
+body {
+    margin: 0% 5% 5% 5%;
+    background-color: aliceblue;
+}
+
+h1 {
+    margin-left: 600px;
+    text-transform: uppercase;
+}
+
+section {
+    width: 1500px;
+    padding: 0.1px 20px 20px 20px;
+    background-color: azure;
+    border: solid black;
+    border-radius: 10px;
+}
+
 table {
     border-collapse: collapse;
+    background-color: white;
 }
 
 th, td {
@@ -7,5 +30,17 @@ th, td {
     min-width: 100px;
     padding: 6px;
     text-align: center;
+}
+
+#lienRetourAccueil a {
+    width: 200px;
+    margin-left: 675px;
+    font-weight: bold;
+    font-size: 15px;
+    color: #FFF;
+    background-color: #A01461;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
 }
 

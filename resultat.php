@@ -9,23 +9,22 @@
 <?php
 
     if (isset($_GET['nomVille'])) {
-        
         if (empty($_GET['nomVille'])) {
             echo "<p>Veuillez taper un nom de ville</p>";
         } else {
-            afficheResultatsRequete();
-            insertionDansBDD();
-            echo "<br/>";
-            echo "<hr/>";
-            afficheDonneesBDD();
-        }           
+                afficheResultatsRequete();
+                insertionDansBDD();
+                echo "<br/><br/>";
+                afficheDonneesBDD();
+        }     
     } else {
         echo "ERREUR";
     }
 
 ?>
 
-<p><a href='view_accueil.php'>Retour à l'accueil</a></p>
+<br/>
+<p id='lienRetourAccueil'><a href='view_accueil.php'>Retour à l'accueil</a></p>
 
 <?php
 
