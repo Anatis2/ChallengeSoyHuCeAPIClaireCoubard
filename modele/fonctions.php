@@ -26,52 +26,56 @@
         $nomVille = htmlspecialchars(cleanString($_GET['nomVille'])); 
         $url = "https://api.openweathermap.org/data/2.5/weather?q=" . $nomVille . "&units=metric&lang=fr&appid=34266f6b097e0c17aeddb1f71e21f16a";
         $json = file_get_contents($url); //Lit le fichier et le récupère dans un tableau
-        $data = json_decode($json, true); //Récupère une chaîne encodée en JSON et la convertit en une variable PHP.
-
-        foreach ($data as $value1) {
-            extract ($data);    
-        }
-
-        /*echo "DATA :";
-        var_dump($data);*/
         
-        $idIcone = $weather[0]['icon'];
-        $urlIcone = "http://openweathermap.org/img/w/" . $idIcone . ".png";
+        if ($json == false) {
+            echo "Cette ville est inconnue : veuillez rééssayer";
+            exit();
+        } else {
+            $data = json_decode($json, true); //Récupère une chaîne encodée en JSON et la convertit en une variable PHP.
+            foreach ($data as $value1) {
+                extract ($data);    
+            }
 
-        echo "<section>";
-        echo "<h3>Résultats de la dernière requête</h3>";
-        echo "<table>
-                <tr>
-                    <th>Ville</th>
-                    <th>Date (heure de Paris)</th>
-                    <th>En résumé</th>
-                    <th>Conditions générales</th>
-                    <th>Température</th>
-                    <th>Pression</th>
-                    <th>Humidité</th>
-                    <th>Vent (vitesse)</th>
-                    <th>Couverture nuageuse</th>
-                </tr>
-                <tr>
-                    <td>". ucfirst($nomVille) . "</td>
-                    <td>Le " . $date . " à " . $heure . "</td>
-                    <td><img src='" . $urlIcone . "'</td>
-                    <td>" . ucfirst($weather[0]['description']) . "</td>
-                    <td>" . $main['temp'] . "°C</td>
-                    <td>" . $main['pressure'] . " hPa</td>
-                    <td>" . $main['humidity'] . "%</td>
-                    <td>" . $wind['speed'] . " m/s</td>
-                    <td>" . $clouds['all'] . "%</td>
-                </tr>
-            </table>";
-        echo "</section>";
+            /*echo "DATA :";
+            var_dump($data);*/
 
+            $idIcone = $weather[0]['icon'];
+            $urlIcone = "http://openweathermap.org/img/w/" . $idIcone . ".png";
+
+            echo "<section>";
+            echo "<h3>Résultats de la dernière requête</h3>";
+            echo "<table>
+                    <tr>
+                        <th>Ville</th>
+                        <th>Date (heure de Paris)</th>
+                        <th>En résumé</th>
+                        <th>Conditions générales</th>
+                        <th>Température</th>
+                        <th>Pression</th>
+                        <th>Humidité</th>
+                        <th>Vent (vitesse)</th>
+                        <th>Couverture nuageuse</th>
+                    </tr>
+                    <tr>
+                        <td>". ucfirst($nomVille) . "</td>
+                        <td>Le " . $date . " à " . $heure . "</td>
+                        <td><img src='" . $urlIcone . "'</td>
+                        <td>" . ucfirst($weather[0]['description']) . "</td>
+                        <td>" . $main['temp'] . "°C</td>
+                        <td>" . $main['pressure'] . " hPa</td>
+                        <td>" . $main['humidity'] . "%</td>
+                        <td>" . $wind['speed'] . " m/s</td>
+                        <td>" . $clouds['all'] . "%</td>
+                    </tr>
+                </table>";
+            echo "</section>";
+        }
     }
     
     /**
      * Insère les données de la dernière requête dans la BDD
      */
-    function insertionDansBDD() {
+    function insertionRequeteDansBDD() {
         include('connectionBDD.php');
         
         date_default_timezone_set('Europe/Paris');
@@ -90,8 +94,56 @@
         $reqInsertData = $connexion->prepare('INSERT INTO requete(`dateRequete`, `valeurTemperature`, `valeurPression`, `valeurHumidite`, `valeurVent`, `valeurNuages`) VALUES (?, ?, ?, ?, ?, ?)');
         $reqInsertData->execute(array($date . " " . $heure, $main['temp'], $main['pressure'], $main['humidity'], $wind['speed'], $clouds['all'] ));
         $reqInsertData->closeCursor();
+        
     }
     
+    /*
+     * Insère une ville dans la table ville de la BDD
+     */
+    function insertionVilleDansBDD() {
+        include('connectionBDD.php');
+
+        $nomVille = htmlspecialchars(cleanString($_GET['nomVille'])); 
+        $url = "https://api.openweathermap.org/data/2.5/weather?q=" . $nomVille . "&units=metric&lang=fr&appid=34266f6b097e0c17aeddb1f71e21f16a";
+        $json = file_get_contents($url); //Lit le fichier et le récupère dans un tableau
+        $data = json_decode($json, true); //Récupère une chaîne encodée en JSON et la convertit en une variable PHP.
+
+        foreach ($data as $value1) {
+            extract ($data);    
+        }
+        
+        $reqInsertDataVille = $connexion->prepare('INSERT INTO ville(`nomVille`) VALUES(?)');
+        $reqInsertDataVille->execute(array($nomVille));
+        $reqInsertDataVille->closeCursor();
+        
+    }
+    
+    /*
+     * Vérifie si la ville existe déjà dans la table ville
+     */
+    function verifDoublonsVille() {
+        include('connectionBDD.php');
+        
+        $nomVille = htmlspecialchars(cleanString($_GET['nomVille'])); 
+        
+        $selectNomVille = "SELECT * FROM ville WHERE nomVille='$nomVille'";
+        $reqSelectNomVille = $connexion->query($selectNomVille);        
+        $resSelectNomVille = $reqSelectNomVille->fetchAll();
+
+        if($resSelectNomVille){
+            echo insertionRequeteDansBDD();
+        } else {
+            echo insertionRequeteDansBDD();
+            echo insertionVilleDansBDD();
+        }  
+        $reqSelectNomVille->closeCursor();
+    }
+    
+    
+    
+    /*
+     * Affiche les 10 dernières données de la BDD
+     */
     function afficheDonneesBDD() {
         include('connectionBDD.php');
         

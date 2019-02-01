@@ -12,10 +12,10 @@
         if (empty($_GET['nomVille'])) {
             echo "<p>Veuillez taper un nom de ville</p>";
         } else {
-                afficheResultatsRequete();
-                insertionDansBDD();
-                echo "<br/><br/>";
-                afficheDonneesBDD();
+            afficheResultatsRequete();
+            verifDoublonsVille();
+            echo "<br/><br/>";
+            afficheDonneesBDD();
         }     
     } else {
         echo "ERREUR";
