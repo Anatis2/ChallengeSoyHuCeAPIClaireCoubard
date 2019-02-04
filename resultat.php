@@ -15,9 +15,7 @@
             afficheResultatsRequete();
             verifDoublonsVille(); // 1. On insère la ville dans la table correspondante, si cette ville n'existe pas déjà
             verifDoublonsConditionsMeteo(); // 2. On insère les conditions météo dans la table correspondante, si cette condition météo n'existe pas déjà
-            insertionRequeteDansBDD(); // 3. On insère les données nécessaires dans la table requete
-            insertionElementsDansTableRefleter(); // 4. On insère les éléments nécéssaires dans la table refleter
-            
+            insertionRequeteDansBDD(); // 3. On insère les données nécessaires dans la table requete et dans la table refleter            
             echo "<br/><br/>";
             afficheDonneesBDD();
         }     

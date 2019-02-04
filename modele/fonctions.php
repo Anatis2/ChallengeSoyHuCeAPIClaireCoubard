@@ -185,28 +185,12 @@
             extract ($data);    
         }
         
+        /*------------------------------- Insertions dans la table requete -------------------------------------*/
         $reqInsertData = $connexion->prepare('INSERT INTO requete(`dateRequete`, `valeurTemperature`, `valeurPression`, `valeurHumidite`, `valeurVent`, `valeurNuages`, `idVille`) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $reqInsertData->execute(array($date . " " . $heure, $main['temp'], $main['pressure'], $main['humidity'], $wind['speed'], $clouds['all'], $resIdVille[0]['idVille']));
         $reqInsertData->closeCursor();
-                
-    }
-  
-    
-    /*
-     * Insère les éléments nécessaires dans la table refleter de la BDD
-     */
-    function insertionElementsDansTableRefleter() {
-        include('connectionBDD.php');
-
-        $nomVille = htmlspecialchars(cleanString($_GET['nomVille'])); 
-        $url = "https://api.openweathermap.org/data/2.5/weather?q=" . $nomVille . "&units=metric&lang=fr&appid=34266f6b097e0c17aeddb1f71e21f16a";
-        $json = file_get_contents($url); //Lit le fichier et le récupère dans un tableau
-        $data = json_decode($json, true); //Récupère une chaîne encodée en JSON et la convertit en une variable PHP.
-
-        foreach ($data as $value1) {
-            extract ($data);    
-        }
         
+        /*------------------------------- Insertions dans la table refleter -------------------------------------*/
         $selectIdCondition = "SELECT idCondition FROM `conditiongenerale` WHERE  nomCondition='" . $weather[0]['description'] . "'";
         $reqSelectIdCondition = $connexion->query($selectIdCondition);        
         $resIdCondition = $reqSelectIdCondition->fetchAll();
@@ -216,23 +200,19 @@
         }
         
         $idCondition = $resIdCondition[0][0];
-        echo $idCondition;
        
         $selectIdRequete = "SELECT idRequete FROM `requete` WHERE idRequete=LAST_INSERT_ID()";
         $reqIdRequete = $connexion->query($selectIdRequete);        
         $resIdRequete = $reqIdRequete->fetchAll();
+        
+        $resIdRequete = $resIdRequete[0][0];
+        
+        $reqInsertDataRefleter = $connexion->prepare('INSERT INTO refleter(`idCondition`, `idRequete`) VALUES (?, ?)');
+        $reqInsertDataRefleter->execute(array($idCondition, $resIdRequete));
+        $reqInsertDataRefleter->closeCursor();
                 
-        var_dump($resIdRequete);
-        
-        //$idRequete = $resIdRequete[0][0];
-        //echo $idRequete;
-        
-        /*$reqInsertElementsRefleter = $connexion->prepare('INSERT INTO refleter(`idCondition`, `idRequete`) VALUES (?, ?)');
-        $reqInsertElementsRefleter->execute(array($resIdCondition, $resIdRequete));
-        $reqInsertElementsRefleter->closeCursor();*/
-        
     }
-    
+  
     
     /*
      * Affiche les 10 dernières données de la BDD
