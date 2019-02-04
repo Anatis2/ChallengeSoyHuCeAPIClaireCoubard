@@ -36,8 +36,7 @@
                 extract ($data);    
             }
 
-            /*echo "DATA :";
-            var_dump($data);*/
+            //var_dump($data);
 
             $idIcone = $weather[0]['icon'];
             $urlIcone = "http://openweathermap.org/img/w/" . $idIcone . ".png";
@@ -72,30 +71,6 @@
         }
     }
     
-    /**
-     * Insère les données de la dernière requête dans la BDD
-     */
-    function insertionRequeteDansBDD() {
-        include('connectionBDD.php');
-        
-        date_default_timezone_set('Europe/Paris');
-        $date = date("Y-m-d");
-        $heure = date("H:i");
-
-        $nomVille = htmlspecialchars(cleanString($_GET['nomVille'])); 
-        $url = "https://api.openweathermap.org/data/2.5/weather?q=" . $nomVille . "&units=metric&lang=fr&appid=34266f6b097e0c17aeddb1f71e21f16a";
-        $json = file_get_contents($url); //Lit le fichier et le récupère dans un tableau
-        $data = json_decode($json, true); //Récupère une chaîne encodée en JSON et la convertit en une variable PHP.
-
-        foreach ($data as $value1) {
-            extract ($data);    
-        }
-        
-        $reqInsertData = $connexion->prepare('INSERT INTO requete(`dateRequete`, `valeurTemperature`, `valeurPression`, `valeurHumidite`, `valeurVent`, `valeurNuages`) VALUES (?, ?, ?, ?, ?, ?)');
-        $reqInsertData->execute(array($date . " " . $heure, $main['temp'], $main['pressure'], $main['humidity'], $wind['speed'], $clouds['all'] ));
-        $reqInsertData->closeCursor();
-        
-    }
     
     /*
      * Insère une ville dans la table ville de la BDD
@@ -118,6 +93,7 @@
         
     }
     
+    
     /*
      * Vérifie si la ville existe déjà dans la table ville
      */
@@ -130,15 +106,132 @@
         $reqSelectNomVille = $connexion->query($selectNomVille);        
         $resSelectNomVille = $reqSelectNomVille->fetchAll();
 
-        if($resSelectNomVille){
-            echo insertionRequeteDansBDD();
-        } else {
-            echo insertionRequeteDansBDD();
+        if(!$resSelectNomVille){ // Si la ville n'existe pas dans la table, alors on insère la ville dans la table ville
             echo insertionVilleDansBDD();
         }  
         $reqSelectNomVille->closeCursor();
     }
     
+    
+    /*
+     * Insère une condition météorologique dans la table conditiongenerale de la BDD
+     */
+    function insertionConditionMeteoDansBDD() {
+        include('connectionBDD.php');
+
+        $nomVille = htmlspecialchars(cleanString($_GET['nomVille'])); 
+        $url = "https://api.openweathermap.org/data/2.5/weather?q=" . $nomVille . "&units=metric&lang=fr&appid=34266f6b097e0c17aeddb1f71e21f16a";
+        $json = file_get_contents($url); //Lit le fichier et le récupère dans un tableau
+        $data = json_decode($json, true); //Récupère une chaîne encodée en JSON et la convertit en une variable PHP.
+
+        foreach ($data as $value1) {
+            extract ($data);    
+        }
+        
+        $reqInsertConditionsGenerales = $connexion->prepare('INSERT INTO conditiongenerale(`nomCondition`, `idIcone`) VALUES (?, ?)');
+        $reqInsertConditionsGenerales->execute(array($weather[0]['description'], $weather[0]['icon']));
+        $reqInsertConditionsGenerales->closeCursor();
+        
+    }
+    
+    
+    /*
+     * Vérifie si la condition météo existe déjà dans la table conditiongenerale
+     */
+    function verifDoublonsConditionsMeteo() {
+        include('connectionBDD.php');
+        
+        $nomVille = htmlspecialchars(cleanString($_GET['nomVille'])); 
+        
+        $url = "https://api.openweathermap.org/data/2.5/weather?q=" . $nomVille . "&units=metric&lang=fr&appid=34266f6b097e0c17aeddb1f71e21f16a";
+        $json = file_get_contents($url); //Lit le fichier et le récupère dans un tableau
+        $data = json_decode($json, true); //Récupère une chaîne encodée en JSON et la convertit en une variable PHP.
+
+        foreach ($data as $value1) {
+            extract ($data);    
+        }
+        
+        $selectNomCondition = "SELECT * FROM conditiongenerale WHERE nomCondition='" . $weather[0]['description'] . "'";
+        $reqSelectNomCondition = $connexion->query($selectNomCondition);        
+        $resNomCondition = $reqSelectNomCondition->fetchAll();
+
+        if(!$resNomCondition){ // Si la condition météo n'existe pas dans la table, alors on insère cette condition dans la table conditionGenerale
+            echo insertionConditionMeteoDansBDD();           
+        } 
+        $reqSelectNomCondition->closeCursor();
+    }
+    
+    
+    /**
+     * Insère les données de la dernière requête dans la BDD
+     */
+    function insertionRequeteDansBDD() {
+        include('connectionBDD.php');
+        
+        date_default_timezone_set('Europe/Paris');
+        $date = date("Y-m-d");
+        $heure = date("H:i");
+
+        $nomVille = htmlspecialchars(cleanString($_GET['nomVille']));
+        $selectIdVille = "SELECT idVille FROM ville WHERE nomVille='" . $nomVille . "'";
+        $reqSelectIdVille = $connexion->query($selectIdVille);        
+        $resIdVille = $reqSelectIdVille->fetchAll();
+        
+        $url = "https://api.openweathermap.org/data/2.5/weather?q=" . $nomVille . "&units=metric&lang=fr&appid=34266f6b097e0c17aeddb1f71e21f16a";
+        $json = file_get_contents($url); //Lit le fichier et le récupère dans un tableau
+        $data = json_decode($json, true); //Récupère une chaîne encodée en JSON et la convertit en une variable PHP.
+
+        foreach ($data as $value1) {
+            extract ($data);    
+        }
+        
+        $reqInsertData = $connexion->prepare('INSERT INTO requete(`dateRequete`, `valeurTemperature`, `valeurPression`, `valeurHumidite`, `valeurVent`, `valeurNuages`, `idVille`) VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $reqInsertData->execute(array($date . " " . $heure, $main['temp'], $main['pressure'], $main['humidity'], $wind['speed'], $clouds['all'], $resIdVille[0]['idVille']));
+        $reqInsertData->closeCursor();
+                
+    }
+  
+    
+    /*
+     * Insère les éléments nécessaires dans la table refleter de la BDD
+     */
+    function insertionElementsDansTableRefleter() {
+        include('connectionBDD.php');
+
+        $nomVille = htmlspecialchars(cleanString($_GET['nomVille'])); 
+        $url = "https://api.openweathermap.org/data/2.5/weather?q=" . $nomVille . "&units=metric&lang=fr&appid=34266f6b097e0c17aeddb1f71e21f16a";
+        $json = file_get_contents($url); //Lit le fichier et le récupère dans un tableau
+        $data = json_decode($json, true); //Récupère une chaîne encodée en JSON et la convertit en une variable PHP.
+
+        foreach ($data as $value1) {
+            extract ($data);    
+        }
+        
+        $selectIdCondition = "SELECT idCondition FROM `conditiongenerale` WHERE  nomCondition='" . $weather[0]['description'] . "'";
+        $reqSelectIdCondition = $connexion->query($selectIdCondition);        
+        $resIdCondition = $reqSelectIdCondition->fetchAll();
+        
+        foreach ($resIdCondition as $value) {
+            extract ($resIdCondition);    
+        }
+        
+        $idCondition = $resIdCondition[0][0];
+        echo $idCondition;
+       
+        $selectIdRequete = "SELECT idRequete FROM `requete` WHERE idRequete=LAST_INSERT_ID()";
+        $reqIdRequete = $connexion->query($selectIdRequete);        
+        $resIdRequete = $reqIdRequete->fetchAll();
+                
+        var_dump($resIdRequete);
+        
+        //$idRequete = $resIdRequete[0][0];
+        //echo $idRequete;
+        
+        /*$reqInsertElementsRefleter = $connexion->prepare('INSERT INTO refleter(`idCondition`, `idRequete`) VALUES (?, ?)');
+        $reqInsertElementsRefleter->execute(array($resIdCondition, $resIdRequete));
+        $reqInsertElementsRefleter->closeCursor();*/
+        
+    }
     
     
     /*
@@ -147,7 +240,9 @@
     function afficheDonneesBDD() {
         include('connectionBDD.php');
         
-        $selectDonneesMeteo = "SELECT * FROM `requete` ORDER BY `dateRequete` DESC LIMIT 10";
+        $selectDonneesMeteo = "SELECT * FROM `requete` "
+                                . "JOIN `ville` ON requete.idVille = ville.idVille "
+                                . "ORDER BY `idRequete` DESC LIMIT 10";
         $reqSelectDonneesMeteo = $connexion->query($selectDonneesMeteo);        
         $resSelectDonneesMeteo = $reqSelectDonneesMeteo->fetchAll();
         
@@ -157,6 +252,7 @@
                 <tr>
                     <th>Ville</th>
                     <th>Date (heure de Paris)</th>
+                    <th>Conditions générales</th>
                     <th>Température</th>
                     <th>Pression</th>
                     <th>Humidité</th>
@@ -167,19 +263,21 @@
         foreach ($resSelectDonneesMeteo as $value1) {
             extract ($resSelectDonneesMeteo);
             
-            //var_dump($value1);
-            
             echo "<tr>
-                    <td>Ville</td>
-                    <td>" . $value1['dateRequete'] . "</td>
-                    <td>" . $value1['valeurTemperature'] . "</td>
-                    <td>" . $value1['valeurPression'] . "</td>
-                    <td>" . $value1['valeurHumidite'] . "</td>
-                    <td>" . $value1['valeurVent'] . "</td>
-                    <td>" . $value1['valeurNuages'] . "</td>
-                </tr>";
-            
+                <td>" . ucfirst($value1['nomVille']) . "</td>
+                <td>" . $value1['dateRequete'] . "</td>
+                <td></td>
+                <td>" . $value1['valeurTemperature'] . "</td>
+                <td>" . $value1['valeurPression'] . "</td>
+                <td>" . $value1['valeurHumidite'] . "</td>
+                <td>" . $value1['valeurVent'] . "</td>
+                <td>" . $value1['valeurNuages'] . "</td>
+            </tr>";
         }
+            
+        
+            
+        
 
         echo "</table>";
         echo "</section>";
