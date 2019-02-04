@@ -35,14 +35,8 @@
         }
     }
         
-
 ?>
 
-<br/>
-<p id='lienRetourAccueil'><a href='view_accueil.php'>Retour à l'accueil</a></p>
-
 <?php
-
     include('view_footer.php');
-
 ?>

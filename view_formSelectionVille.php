@@ -13,8 +13,5 @@
     <input type="submit" value="Rechercher"/>
 </form>
 
-
-
-
 <br/><br/>
 
