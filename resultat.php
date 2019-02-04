@@ -17,11 +17,16 @@
             verifDoublonsConditionsMeteo(); // 2. On insère les conditions météo dans la table correspondante, si cette condition météo n'existe pas déjà
             insertionRequeteDansBDD(); // 3. On insère les données nécessaires dans la table requete et dans la table refleter            
             echo "<br/><br/>";
+            include('view_formSelectionVille.php');
             afficheDonneesBDD();
         }     
     } else {
         echo "ERREUR";
     }
+    
+    /*if (isset($_GET['nomVilleComparaison'])) {
+        
+    }*/
 
 ?>
 

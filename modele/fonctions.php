@@ -58,7 +58,7 @@
                     <tr>
                         <td>". ucfirst($nomVille) . "</td>
                         <td>Le " . $date . " à " . $heure . "</td>
-                        <td><img src='" . $urlIcone . "'</td>
+                        <td><img src='" . $urlIcone . "'/></td>
                         <td>" . ucfirst($weather[0]['description']) . "</td>
                         <td>" . $main['temp'] . "°C</td>
                         <td>" . $main['pressure'] . " hPa</td>
@@ -228,8 +228,6 @@
         $reqSelectDonneesMeteo = $connexion->query($selectDonneesMeteo);        
         $resSelectDonneesMeteo = $reqSelectDonneesMeteo->fetchAll();
         
-        echo "<section>";
-        echo "<h3>Résultats des 10 dernières requêtes</h3>";
         echo "<table id='tabBDD'>
                 <tr>
                     <th>Ville</th>
@@ -260,6 +258,20 @@
         echo "</table>";
         echo "</section>";
     }
+    
+    function recupNomsVilles() {
+        include('connectionBDD.php');
+    
+        $selectVilles = "SELECT nomVille FROM `ville`";
+        $reqSelectVilles = $connexion->query($selectVilles);        
+        $resSelectVilles = $reqSelectVilles->fetchAll();
+        
+        foreach ($resSelectVilles as $resVille) {
+            echo "<option>" . ucfirst($resVille['nomVille']) . "</option>";
+        }
+
+    }
+    
 
 ?>
 
