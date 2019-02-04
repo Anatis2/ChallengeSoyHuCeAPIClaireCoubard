@@ -9,8 +9,11 @@
 <?php
 
     if (isset($_GET['nomVille'])) {
-        if (empty($_GET['nomVille'])) {
+        if ((empty($_GET['nomVille'])) && (!isset($_GET['nomVilleComparaison']))) {
             echo "<p>Veuillez taper un nom de ville</p>";
+            echo "<br/><br/>";
+            include('view_formSelectionVille.php');
+            afficheDonneesBDD();
         } else {
             afficheResultatsRequete();
             verifDoublonsVille(); // 1. On insère la ville dans la table correspondante, si cette ville n'existe pas déjà
@@ -20,13 +23,18 @@
             include('view_formSelectionVille.php');
             afficheDonneesBDD();
         }     
-    } else {
-        echo "ERREUR";
+    } elseif (isset($_GET['nomVilleComparaison'])) {
+        if (($_GET['nomVilleComparaison']) == "Toutes") {
+            echo "<br/><br/>";
+            include('view_formSelectionVille.php');
+            afficheDonneesBDD();
+        } else {
+            echo "<br/><br/>";
+            include('view_formSelectionVille.php');
+            afficheDonneesBDDParVille();
+        }
     }
-    
-    /*if (isset($_GET['nomVilleComparaison'])) {
         
-    }*/
 
 ?>
 

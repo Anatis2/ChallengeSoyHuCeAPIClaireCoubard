@@ -19,6 +19,8 @@
      */
     function afficheResultatsRequete() {
         
+        include('connectionBDD.php');
+        
         date_default_timezone_set('Europe/Paris');
         $date = date("d-m-Y");
         $heure = date("H:i");
@@ -218,17 +220,10 @@
      * Affiche les 10 dernières données de la BDD
      */
     function afficheDonneesBDD() {
+        
         include('connectionBDD.php');
         
-        $selectDonneesMeteo = "SELECT * FROM `requete` req "
-                                . "JOIN `ville` vil ON req.idVille = vil.idVille "
-                                . "JOIN `refleter` refl ON req.idRequete = refl.idRequete "
-                                . "JOIN `conditionGenerale` cond ON refl.idCondition = cond.idCondition "
-                                . "ORDER BY req.idRequete DESC LIMIT 10";
-        $reqSelectDonneesMeteo = $connexion->query($selectDonneesMeteo);        
-        $resSelectDonneesMeteo = $reqSelectDonneesMeteo->fetchAll();
-        
-        echo "<table id='tabBDD'>
+        echo "<table class='tabBDD'>
                 <tr>
                     <th>Ville</th>
                     <th>Date (heure de Paris)</th>
@@ -239,26 +234,86 @@
                     <th>Vent (vitesse)</th>
                     <th>Couverture nuageuse</th>
                 </tr>";
-                
+        
+        $selectDonneesMeteo = "SELECT * FROM `requete` req "
+                        . "JOIN `ville` vil ON req.idVille = vil.idVille "
+                        . "JOIN `refleter` refl ON req.idRequete = refl.idRequete "
+                        . "JOIN `conditionGenerale` cond ON refl.idCondition = cond.idCondition "
+                        . "ORDER BY req.idRequete DESC LIMIT 10";
+        $reqSelectDonneesMeteo = $connexion->query($selectDonneesMeteo);        
+        $resSelectDonneesMeteo = $reqSelectDonneesMeteo->fetchAll();
+
         foreach ($resSelectDonneesMeteo as $value1) {
             extract ($resSelectDonneesMeteo);
-            
+
             echo "<tr>
-                <td>" . ucfirst($value1['nomVille']) . "</td>
-                <td>" . $value1['dateRequete'] . "</td>
-                <td>" . ucfirst($value1['nomCondition']) . "</td>
-                <td>" . $value1['valeurTemperature'] . "</td>
-                <td>" . $value1['valeurPression'] . "</td>
-                <td>" . $value1['valeurHumidite'] . "</td>
-                <td>" . $value1['valeurVent'] . "</td>
-                <td>" . $value1['valeurNuages'] . "</td>
-            </tr>";
-        }
+                    <td>" . ucfirst($value1['nomVille']) . "</td>
+                    <td>" . $value1['dateRequete'] . "</td>
+                    <td>" . ucfirst($value1['nomCondition']) . "</td>
+                    <td>" . $value1['valeurTemperature'] . "</td>
+                    <td>" . $value1['valeurPression'] . "</td>
+                    <td>" . $value1['valeurHumidite'] . "</td>
+                    <td>" . $value1['valeurVent'] . "</td>
+                    <td>" . $value1['valeurNuages'] . "</td>
+                </tr>";
+        }        
         
         echo "</table>";
-        echo "</section>";
     }
     
+    
+    /*
+     * Affiche les 10 dernières données de la BDD, par ville
+     */
+    function afficheDonneesBDDParVille() {
+        include('connectionBDD.php');
+        
+        $nomVilleComparaison = htmlspecialchars(cleanString($_GET['nomVilleComparaison']));
+
+        echo "<table class='tabBDD'>
+                <tr>
+                    <th>Ville</th>
+                    <th>Date (heure de Paris)</th>
+                    <th>Conditions générales</th>
+                    <th>Température</th>
+                    <th>Pression</th>
+                    <th>Humidité</th>
+                    <th>Vent (vitesse)</th>
+                    <th>Couverture nuageuse</th>
+                </tr>";
+        
+        $selectDonneesMeteo = "SELECT * FROM `requete` req "
+                        . "JOIN `ville` vil ON req.idVille = vil.idVille "
+                        . "JOIN `refleter` refl ON req.idRequete = refl.idRequete "
+                        . "JOIN `conditionGenerale` cond ON refl.idCondition = cond.idCondition "
+                        . "WHERE nomVille='" . $nomVilleComparaison . "'"
+                        . "ORDER BY req.idRequete DESC LIMIT 10";
+        $reqSelectDonneesMeteo = $connexion->query($selectDonneesMeteo);        
+        $resSelectDonneesMeteo = $reqSelectDonneesMeteo->fetchAll();
+
+        foreach ($resSelectDonneesMeteo as $value1) {
+            extract ($resSelectDonneesMeteo);
+
+            echo "<tr>
+                    <td>" . ucfirst($value1['nomVille']) . "</td>
+                    <td>" . $value1['dateRequete'] . "</td>
+                    <td>" . ucfirst($value1['nomCondition']) . "</td>
+                    <td>" . $value1['valeurTemperature'] . "</td>
+                    <td>" . $value1['valeurPression'] . "</td>
+                    <td>" . $value1['valeurHumidite'] . "</td>
+                    <td>" . $value1['valeurVent'] . "</td>
+                    <td>" . $value1['valeurNuages'] . "</td>
+                </tr>";
+        }        
+        
+        echo "</table>";
+    
+    }
+    
+    
+    /*
+     * Récupère les noms de ville présents dans la BDD et les affiche dans une liste
+     */
     function recupNomsVilles() {
         include('connectionBDD.php');
     
@@ -267,7 +322,7 @@
         $resSelectVilles = $reqSelectVilles->fetchAll();
         
         foreach ($resSelectVilles as $resVille) {
-            echo "<option>" . ucfirst($resVille['nomVille']) . "</option>";
+            echo "<option value='" . ucfirst($resVille['nomVille']) . "'>" . ucfirst($resVille['nomVille']) . "</option>";
         }
 
     }

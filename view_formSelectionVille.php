@@ -7,6 +7,7 @@
 <form method="get" action="resultat.php">
     <label for="nomVilleComparaison">Sélectionnez une ville : </label>
     <select name="nomVilleComparaison">
+        <option value="Toutes">Toutes</option>
         <?php recupNomsVilles(); ?>
     </select>
     <input type="submit" value="Rechercher"/>
