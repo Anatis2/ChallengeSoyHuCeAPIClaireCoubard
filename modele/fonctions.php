@@ -220,9 +220,11 @@
     function afficheDonneesBDD() {
         include('connectionBDD.php');
         
-        $selectDonneesMeteo = "SELECT * FROM `requete` "
-                                . "JOIN `ville` ON requete.idVille = ville.idVille "
-                                . "ORDER BY `idRequete` DESC LIMIT 10";
+        $selectDonneesMeteo = "SELECT * FROM `requete` req "
+                                . "JOIN `ville` vil ON req.idVille = vil.idVille "
+                                . "JOIN `refleter` refl ON req.idRequete = refl.idRequete "
+                                . "JOIN `conditionGenerale` cond ON refl.idCondition = cond.idCondition "
+                                . "ORDER BY req.idRequete DESC LIMIT 10";
         $reqSelectDonneesMeteo = $connexion->query($selectDonneesMeteo);        
         $resSelectDonneesMeteo = $reqSelectDonneesMeteo->fetchAll();
         
@@ -246,7 +248,7 @@
             echo "<tr>
                 <td>" . ucfirst($value1['nomVille']) . "</td>
                 <td>" . $value1['dateRequete'] . "</td>
-                <td></td>
+                <td>" . ucfirst($value1['nomCondition']) . "</td>
                 <td>" . $value1['valeurTemperature'] . "</td>
                 <td>" . $value1['valeurPression'] . "</td>
                 <td>" . $value1['valeurHumidite'] . "</td>
@@ -254,11 +256,7 @@
                 <td>" . $value1['valeurNuages'] . "</td>
             </tr>";
         }
-            
         
-            
-        
-
         echo "</table>";
         echo "</section>";
     }
