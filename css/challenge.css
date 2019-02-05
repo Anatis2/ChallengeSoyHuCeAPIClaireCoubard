@@ -44,3 +44,8 @@ th, td {
     border-radius: 10px;
 }
 
+.graphique {
+    display: inline-block;
+    margin: 10px;
+}
+

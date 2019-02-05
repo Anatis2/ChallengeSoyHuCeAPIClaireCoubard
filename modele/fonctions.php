@@ -361,10 +361,28 @@
         
         $nomVilleComparaison = htmlspecialchars(cleanString($_GET['nomVilleComparaison']));
         
-        echo "<div>"
-        . "<p>" . ucfirst($nomVilleComparaison) . "</p>"
-        . "<p><img src='graph.php'/>"
-        . "</div>";
+        $selectDonneesMeteo = "SELECT * FROM `requete` req "
+                        . "JOIN `ville` vil ON req.idVille = vil.idVille "
+                        . "JOIN `refleter` refl ON req.idRequete = refl.idRequete "
+                        . "JOIN `conditionGenerale` cond ON refl.idCondition = cond.idCondition "
+                        . "WHERE nomVille='" . $nomVilleComparaison . "'"
+                        . "ORDER BY req.idRequete DESC LIMIT 10";
+        $reqSelectDonneesMeteo = $connexion->query($selectDonneesMeteo);        
+        $resSelectDonneesMeteo = $reqSelectDonneesMeteo->fetchAll();
+
+        foreach ($resSelectDonneesMeteo as $value1) {
+            extract ($resSelectDonneesMeteo);
+
+            $nomVille = ucfirst($value1['nomVille']);
+            $temperature = $value1['valeurTemperature'];
+        } 
+        
+        echo "<h3>Graphique représentant les dernières données météo de " . $nomVille . " :</h3>"
+                . "<div class='graphique'><img src='./graphiques/graphTemperature.php'/></div>"
+                . "<div class='graphique'><img src='./graphiques/graphPression.php'/></div>"
+                . "<div class='graphique'><img src='./graphiques/graphHumidite.php'/></div>"
+                . "<div class='graphique'><img src='./graphiques/graphVent.php'/></div>"
+                . "<div class='graphique'><img src='./graphiques/graphNuages.php'/></div>";
     }
     
 
