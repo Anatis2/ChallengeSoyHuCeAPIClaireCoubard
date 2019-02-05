@@ -223,6 +223,19 @@
         
         include('connectionBDD.php');
         
+        echo "<section>";
+        echo "<h3>Tableau des 10 dernières requêtes</h3>";
+    
+        echo "<form method='get' action='resultat.php'>
+            <label for='nomVilleComparaison'>Sélectionnez une ville : </label>
+            <select name='nomVilleComparaison'>
+                <option value='Toutes'>Toutes</option>";
+                recupNomsVilles();
+        echo "</select>
+            <input type='submit' value='Rechercher'/>
+        </form>
+        <br/><br/>";      
+        
         echo "<table class='tabBDD'>
                 <tr>
                     <th>Ville</th>
@@ -269,7 +282,20 @@
         include('connectionBDD.php');
         
         $nomVilleComparaison = htmlspecialchars(cleanString($_GET['nomVilleComparaison']));
-
+        
+        echo "<section>";
+        echo "<h3>Tableau des 10 dernières requêtes</h3>";
+    
+        echo "<form method='get' action='resultat.php'>
+            <label for='nomVilleComparaison'>Sélectionnez une ville : </label>
+            <select name='nomVilleComparaison'>
+                <option value='Toutes'>Toutes</option>";
+                recupNomsVilles();
+        echo "</select>
+            <input type='submit' value='Rechercher'/>
+        </form>
+        <br/><br/>";      
+        
         echo "<table class='tabBDD'>
                 <tr>
                     <th>Ville</th>
@@ -325,6 +351,20 @@
             echo "<option value='" . ucfirst($resVille['nomVille']) . "'>" . ucfirst($resVille['nomVille']) . "</option>";
         }
 
+    }
+    
+    /*
+     * Affiche le graphique de données météo
+     */
+    function afficheGraphique() {
+        include('connectionBDD.php');
+        
+        $nomVilleComparaison = htmlspecialchars(cleanString($_GET['nomVilleComparaison']));
+        
+        echo "<div>"
+        . "<p>" . ucfirst($nomVilleComparaison) . "</p>"
+        . "<p><img src='graph.php'/>"
+        . "</div>";
     }
     
 
