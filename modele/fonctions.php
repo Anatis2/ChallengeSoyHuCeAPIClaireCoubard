@@ -190,6 +190,7 @@
         /*------------------------------- Insertions dans la table requete -------------------------------------*/
         $reqInsertData = $connexion->prepare('INSERT INTO requete(`dateRequete`, `valeurTemperature`, `valeurPression`, `valeurHumidite`, `valeurVent`, `valeurNuages`, `idVille`) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $reqInsertData->execute(array($date . " " . $heure, $main['temp'], $main['pressure'], $main['humidity'], $wind['speed'], $clouds['all'], $resIdVille[0]['idVille']));
+        $dateRequete = $date . " " . $heure;
         $reqInsertData->closeCursor();
         
         /*------------------------------- Insertions dans la table refleter -------------------------------------*/
@@ -209,6 +210,8 @@
         
         $resIdRequete = $resIdRequete[0][0];
         
+        $numRequete = new DonneesMeteo($resIdRequete, $dateRequete, $main['temp'], $main['pressure'], $main['humidity'], $wind['speed'], $clouds['all']);
+        
         $reqInsertDataRefleter = $connexion->prepare('INSERT INTO refleter(`idCondition`, `idRequete`) VALUES (?, ?)');
         $reqInsertDataRefleter->execute(array($idCondition, $resIdRequete));
         $reqInsertDataRefleter->closeCursor();
@@ -227,7 +230,7 @@
         echo "<h3>Tableau des 10 dernières requêtes</h3>";
     
         echo "<form method='get' action='resultat.php'>
-            <label for='nomVilleComparaison'>Sélectionnez une ville : </label>
+            <label for='nomVilleComparaison'>Sélectionnez une ville pour voir les <strong>graphiques</strong> liés à ses données météo : </label>
             <select name='nomVilleComparaison'>
                 <option value='Toutes'>Toutes</option>";
                 recupNomsVilles();
@@ -287,7 +290,7 @@
         echo "<h3>Tableau des 10 dernières requêtes</h3>";
     
         echo "<form method='get' action='resultat.php'>
-            <label for='nomVilleComparaison'>Sélectionnez une ville : </label>
+            <label for='nomVilleComparaison'>Sélectionnez une ville pour voir les <strong>graphiques</strong> liés à ses données météo : </label>
             <select name='nomVilleComparaison'>
                 <option value='Toutes'>Toutes</option>";
                 recupNomsVilles();
@@ -359,6 +362,7 @@
     function afficheGraphique() {
         include('connectionBDD.php');
         
+        
         $nomVilleComparaison = htmlspecialchars(cleanString($_GET['nomVilleComparaison']));
         
         $selectDonneesMeteo = "SELECT * FROM `requete` req "
@@ -369,12 +373,19 @@
                         . "ORDER BY req.idRequete DESC LIMIT 10";
         $reqSelectDonneesMeteo = $connexion->query($selectDonneesMeteo);        
         $resSelectDonneesMeteo = $reqSelectDonneesMeteo->fetchAll();
-
+        
         foreach ($resSelectDonneesMeteo as $value1) {
-            extract ($resSelectDonneesMeteo);
+        extract ($resSelectDonneesMeteo);
 
-            $nomVille = ucfirst($value1['nomVille']);
-            $temperature = $value1['valeurTemperature'];
+        $nomVille = ucfirst($value1['nomVille']);
+        $idRequete = $value1['idRequete'];
+        $dateRequete = $value1['dateRequete'];
+        $temperature = $value1['valeurTemperature'];
+        $pression = $value1['valeurPression'];
+        $humidite = $value1['valeurHumidite'];
+        $vent = $value1['valeurVent'];
+        $nuages = $value1['valeurNuages'];
+
         } 
         
         echo "<h3>Graphique représentant les dernières données météo de " . $nomVille . " :</h3>"

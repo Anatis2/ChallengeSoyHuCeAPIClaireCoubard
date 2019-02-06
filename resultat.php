@@ -1,6 +1,7 @@
 <?php
 
     include('modele/fonctions.php');
+    include('classes/class_donneesMeteo.php');
     include('view_header.php');
     include('view_accueil.php');
 
